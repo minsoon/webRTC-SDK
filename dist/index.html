@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>webRTC Test Page</title>
+  </head>
+  <body>
+    <video id="localVideo" data-video data-audio autoplay playsinline muted></video>
+    <video id="remoteVideo" autoplay playsinline></video>
+    <select id="audioSource"></select>
+    <select id="audioOutput"></select>
+    <select id="videoSource"></select>
+
+    <button id="cameraBtn" onclick="Omnich.Rtc.gum()">Open camera</button>
+    <button id="callBtn" onclick="Omnich.Rtc.call()">Call</button>
+    <button onclick="Omnich.Rtc.hangup()">hangup</button>
+    <!-- built files will be auto injected -->
+    <script src="./omnich.sdk.js"></script>
+    <script>
+      
+      function setPage () {
+        var localVideo = document.querySelector('#localVideo')
+        var audioSource = document.querySelector('#audioSource')
+        var audioOutput = document.querySelector('#audioOutput')
+        var videoSource = document.querySelector('#videoSource')
+        var selectSet = function (d, dom) {
+          const option = document.createElement('option')
+          option.value = d.deviceId;
+          option.text = d.label;
+          dom.appendChild(option);
+        }
+        Omnich.Rtc.audioinput.forEach(d => {
+          selectSet(d, audioSource)
+        });
+        Omnich.Rtc.audiooutput.forEach(d => {
+          selectSet(d, audioOutput)
+        });
+        Omnich.Rtc.videoinput.forEach(d => {
+          selectSet(d, videoSource)
+        });
+
+        localVideo.dataset.audio = audioSource.options[audioSource.selectedIndex].value;
+        localVideo.dataset.video = videoSource.options[videoSource.selectedIndex].value;
+
+        audioSource.onchange = function () {
+          localVideo.dataset.audio = audioSource.options[audioSource.selectedIndex].value;
+          Omnich.Rtc.gum()
+        };
+        videoSource.onchange = function () {
+          localVideo.dataset.value = videoSource.options[videoSource.selectedIndex].value;
+          Omnich.Rtc.gum()
+        };
+        Omnich.Rtc.setSdp('plan-b')
+      }
+        (function() {
+          Omnich.Rtc.Init({
+            wss: 'wss://',
+            token: 'tokentoken',
+            localId: '#localVideo',
+            remoteId: ['#remoteVideo'],
+            sdp: 'unified-plan' //  'unified-plan' and 'plan-b'
+          }).then(setPage)
+        })();
+    </script>
+  </body>
+</html>
